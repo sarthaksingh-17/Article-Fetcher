@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <title>News Explorer</title>
+</head>
+<body>
+    <section class="topics" aria-label="Topics">
+        <button class="topic" data-topic="AI">AI</button>
+        <button class="topic" data-topic="javascript">JavaScript</button>
+        <button class="topic" data-topic="startup">Startup</button>
+        <button class="topic" data-topic="programming">Programming</button>
+    </section>
+
+    <script>
+        const newsContainer = document.getElementById('news-container');
+
+        async function fetchNews(topic) {
+            try {
+                const url = https://hn.algolia.com/api/v1/search?query=${topic};
+                const response = await fetch(url);
+                const data = await response.json();
+                return data.hits || [];
+            } catch (error) {
+                console.error('Error fetching news:', error);
+                return [];
+            }
+        }
+
+        function showNews(articles) {
+            if (!Array.isArray(articles) || articles.length === 0) {
+                newsContainer.innerHTML = '<p>No news found for this topic.</p>';
+                return;
+            }
+
+            newsContainer.innerHTML = '';
+
+            articles.forEach(article => {
+                const title = article.title || article.story_title || 'No Title';
+                const link = article.url || article.story_url || '#';
+
+                const item = document.createElement('div');
+                item.className = 'news-item';
+
+                const anchor = document.createElement('a');
+                anchor.href = link;
+                anchor.target = '_blank';
+                anchor.rel = 'noopener noreferrer';
+                anchor.textContent = title;
+
+                item.appendChild(anchor);
+                newsContainer.appendChild(item);
+            });
+        }
+
+        document.querySelectorAll('.topic').forEach(button => {
+            button.addEventListener('click', async () => {
+                const topic = button.dataset.topic;
+                if (!topic) return;
+
+                newsContainer.innerHTML = '<p>Loading…</p>';
+                const articles = await fetchNews(topic);
+                showNews(articles);
+            });
+        });
+    </script>
+</body>
+</html>
